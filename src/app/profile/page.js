@@ -110,15 +110,6 @@ export default function Page() {
                         </table>
                     </div>
                 </div>
-                <div className="flex flex-col w-full gap-5">
-                    <h1 className="text-2xl font-bold text-primary">Account</h1>
-                    <div className="flex flex-col items-center w-full">
-                        <div className="flex items-center w-full border px-6 py-4 gap-52">
-                            <h1 className="text-xl font-bold ">Password</h1>
-                            <h1 className="text-xl font-bold ">********</h1>
-                        </div>
-                    </div>
-                </div>
 
                 <button onClick={handleSignOut} className="px-5 py-3 font-bold text-white uppercase transition duration-300 delay-150 bg-gradient-to-tr from-red-900 to-red-500 hover:bg-gradient-to-bl rounded-2xl">Sign out</button>
             </div>
