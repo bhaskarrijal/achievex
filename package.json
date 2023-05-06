@@ -12,7 +12,9 @@
     "firebase": "^9.19.1",
     "next": "13.2.4",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-select": "^5.7.3",
+    "react-select-country-list": "^2.2.3"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",

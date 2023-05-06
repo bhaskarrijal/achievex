@@ -2,6 +2,7 @@
 
 import LoadingComponent from "@/app/components/LoadingComponent"
 import { useAuthContext } from "@/context/AuthContext"
+import { useData } from "@/context/DataContext"
 import { useRouter } from "next/navigation"
 import React from "react"
 
@@ -12,6 +13,15 @@ export default function Page() {
     React.useEffect(() => {
         if (user == null) router.push("/")
     }, [user])
+
+    const { userData } = useData()
+
+    React.useEffect(() => {
+        console.log(userData)
+        if (!userData) {
+            router.push('/onboarding')
+        }
+    }, [userData])
 
     if (!user) return <LoadingComponent />
 

@@ -1,32 +1,31 @@
 'use client'
-import React from "react";
+import React, { useMemo } from "react";
 import signUp from "@/firebase/auth/signup";
 import { useRouter } from 'next/navigation'
 import Link from "next/link";
+import { addDoc, doc, setDoc } from "firebase/firestore";
+import { db } from "@/firebase/config";
 
 function Page() {
+
     const [email, setEmail] = React.useState('')
     const [password, setPassword] = React.useState('')
     const [siteError, setSiteError] = React.useState('')
 
-    const [signUpSteps, setSignUpSteps] = React.useState(1)
+    const [createdUser, setCreatedUser] = React.useState({})
+
+    const [signUpSteps, setSignUpSteps] = React.useState(0)
 
     const router = useRouter()
 
     const handleForm = async (event) => {
         event.preventDefault()
-
-        const { result, error } = await signUp(email, password);
-
-        if (error) {
-            error.code === 'auth/email-already-in-use' ? setSiteError('Email already in use!') : setSiteError('Something went wrong!')
-            return console.log(error)
-        }
-
-        // else successful
-        console.log(result)
-        setSignUpSteps(1)
-        return router.push("/admin")
+        const user = await signUp(email, password).then((user) => {
+            setCreatedUser(user)
+            router.push('/onboarding')
+        }).catch((error) => {
+            setSiteError(error.message)
+        })
     }
 
     // STEP 2
@@ -35,21 +34,47 @@ function Page() {
     const [username, setUsername] = React.useState('')
     const [age, setAge] = React.useState('')
     const [gender, setGender] = React.useState('')
-    const [country, setCountry] = React.useState('')
 
     const handleDetailsForm = async (event) => {
         event.preventDefault()
-
-
+        console.log(
+            name,
+            username,
+            age,
+            gender,
+            createdUser
+        )
+        await addDoc(doc(db, "users", createdUser.uid), {
+            name: name,
+            username: username,
+            age: age,
+            gender: gender,
+        }).then(() => {
+            setSignUpSteps(2)
+        }).catch((error) => {
+            setSiteError(error.message)
+        }
+        )
     }
 
     // STEP 3
 
     const [interests, setInterests] = React.useState([])
-    const [goals, setGoals] = React.useState([])
 
     const handleInterestsForm = async (event) => {
-        event.preventDefault()
+        event.preventDefault();
+        const selectedInterests = [...event.target.elements].filter(element => element.checked).map(element => element.value)
+        setInterests(selectedInterests)
+
+        await setDoc(doc(db, "users", createdUser.uid), {
+            interests: selectedInterests
+        }, { merge: true }).then(() => {
+            setSignUpSteps(3)
+        }).catch((error) => {
+            setSiteError(error.message)
+        }
+        )
+        console.log(selectedInterests)
     }
 
 
@@ -108,13 +133,12 @@ function Page() {
 
                     <div class="flex w-full justify-center items-center bg-white">
                         <form class="bg-white w-full" onSubmit={handleDetailsForm}>
-                            <h1 class="text-gray-800 font-bold text-2xl mb-1">Thanks for signing up!</h1>
+                            <h1 class="text-gray-800 font-bold text-2xl mb-1">Your Details</h1>
                             <p class="text-sm font-normal text-gray-600 mb-7">
                                 Enter your details to continue.
                             </p>
                             <div className="grid grid-cols-1 space-y-4">
                                 <div class="flex items-center border-2 py-2 px-3 rounded-2xl">
-                                    {/* <span class="text-gray-400 font-bold text-base">Name</span> */}
                                     <input
                                         onChange={(e) => setName(e.target.value)}
                                         class="pl-2 outline-none border-none w-full"
@@ -164,22 +188,6 @@ function Page() {
                                     </select>
                                 </div>
 
-                                <div class="flex items-center border-2 py-2 px-3 rounded-2xl">
-                                    <select
-                                        onChange={(e) => setCountry(e.target.value)}
-                                        class="pl-2 outline-none border-none w-full"
-                                        name="country"
-                                        id="country"
-                                        defaultValue={''}
-                                        required
-                                    >
-                                        <option value="" disabled hidden>Select Country</option>
-                                        <option>Male</option>
-                                        <option>Female</option>
-                                        <option>Non-binary</option>
-                                        <option>Prefer not to say</option>
-                                    </select>
-                                </div>
                             </div>
                             {siteError && <p class="text-red-500 text-sm font-bold mt-3">{siteError}</p>}
                             <button class="w-full mt-4 mb-2 bg-gradient-to-tr from-secondary to-primary text-white font-bold py-3 px-5 uppercase hover:bg-gradient-to-bl transition duration-300 rounded-2xl delay-150">NEXT</button>
@@ -204,12 +212,42 @@ function Page() {
                     </div>
 
                     <div class="flex w-full justify-center items-center bg-white">
-                        <form class="bg-white w-full" onSubmit={handleDetailsForm}>
+                        <form class="bg-white w-full" onSubmit={handleInterestsForm}>
+                            <h1 class="text-gray-800 font-bold text-2xl mb-1">
+                                What are you interested in?
+                            </h1>
+                            <p class="text-sm font-normal text-gray-600 mb-7">
+                                Select all that apply.
+                            </p>
+                            <div className="grid grid-cols-1 space-y-4">
+                                <label className="inline-flex items-center">
+                                    <input type="checkbox" name="interests" value="Programming" />
+                                    <span className="ml-2">Programming</span>
+                                </label>
+                                <label className="inline-flex items-center">
+                                    <input type="checkbox" name="interests" value="Music" />
+                                    <span className="ml-2">Music</span>
+                                </label>
+                                <label className="inline-flex items-center">
+                                    <input type="checkbox" name="interests" value="Sports" />
+                                    <span className="ml-2">Sports</span>
+                                </label>
+                                <label className="inline-flex items-center">
+                                    <input type="checkbox" name="interests" value="Fitness" />
+                                    <span className="ml-2">Fitness</span>
+                                </label>
+                            </div>
 
+                            <button class="w-full mt-4 mb-2 bg-gradient-to-tr from-secondary to-primary text-white font-bold py-3 px-5 uppercase hover:bg-gradient-to-bl transition duration-300 rounded-2xl delay-150">SUBMIT</button>
                         </form>
                     </div>
                 </div>
             );
+
+        case 3:
+            // redirect to home page
+            router.push('/profile')
+
     }
 }
 

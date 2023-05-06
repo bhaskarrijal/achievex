@@ -5,9 +5,11 @@ import signOutFromApp from "@/firebase/auth/signout"
 import { useRouter } from "next/navigation"
 import React from "react"
 import LoadingComponent from "../components/LoadingComponent"
+import { useData } from "@/context/DataContext"
 
 export default function Page() {
     const { user } = useAuthContext()
+    const { userData } = useData()
     const router = useRouter()
 
     React.useEffect(() => {
@@ -19,6 +21,13 @@ export default function Page() {
     const handleSignOut = async () => {
         await signOutFromApp();
     }
+
+    React.useEffect(() => {
+        console.log(userData)
+        if (!userData) {
+            router.push('/onboarding')
+        }
+    }, [userData])
 
     return (
         <>
@@ -32,7 +41,23 @@ export default function Page() {
                     <div className="flex flex-col items-center w-full gap-5">
                         <div className="flex items-center w-full gap-5">
                             <h1 className="text-xl font-bold">Name</h1>
-                            <h1 className="text-xl font-bold">{!user.displayName ? 'N/A' : user.displayName}</h1>
+                            <h1 className="text-xl font-bold">{!userData?.name ? 'N/A' : userData?.name}</h1>
+                        </div>
+                        <div className="flex items-center w-full gap-5">
+                            <h1 className="text-xl font-bold">Username</h1>
+                            <h1 className="text-xl font-bold">{!userData?.username ? 'N/A' : userData?.username}</h1>
+                        </div>
+                        <div className="flex items-center w-full gap-5">
+                            <h1 className="text-xl font-bold">Age</h1>
+                            <h1 className="text-xl font-bold">{!userData?.age ? 'N/A' : userData?.age}</h1>
+                        </div>
+                        <div className="flex items-center w-full gap-5">
+                            <h1 className="text-xl font-bold">Interests</h1>
+                            <h1 className="text-xl font-bold">{!userData?.interests ?
+                                'N/A' : userData?.interests.map((interest, index) => {
+                                    if (index === userData?.interests.length - 1) return interest
+                                    else return interest + ', '
+                                })}</h1>
                         </div>
                         <div className="flex items-center w-full gap-5">
                             <h1 className="text-xl font-bold">Email</h1>
