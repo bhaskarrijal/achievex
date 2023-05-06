@@ -19,7 +19,3 @@ export default function Home() {
         </>
     );
 }
-
-export const metadata = {
-    title: 'AchieveX - Get your goals done',
-}
