@@ -49,9 +49,9 @@ function ChallengeCard(props) {
         // reset the form
         event.target.reset();
 
-        await setDoc(doc(db, "challenges", id), {
-            dailyUpdates: arrayUnion(newUpdate)
-        }, { merge: true })
+        // await setDoc(doc(db, "challenges", id), {
+        //     dailyUpdates: arrayUnion(newUpdate)
+        // }, { merge: true })
 
     };
 
