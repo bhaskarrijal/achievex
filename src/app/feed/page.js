@@ -4,7 +4,6 @@ import { useAuthContext } from "@/context/AuthContext"
 import { useRouter } from "next/navigation"
 import React from "react"
 import LoggedInFeed from "./LoggedInFeed"
-import LoggedOutFeed from "./LoggedOutFeed"
 import { useData } from "@/context/DataContext"
 
 export default function Feed() {
@@ -26,13 +25,7 @@ export default function Feed() {
 
     return (
         <>
-            {
-                user ? (
-                    <LoggedInFeed />
-                )
-                    :
-                    <LoggedOutFeed />
-            }
+            <LoggedInFeed />
         </>
     )
 }
